@@ -1,0 +1,179 @@
+{# =====================================================================
+   login.html — Modern auth screen.
+   Preserves: form#login-form, #username, #password, #login-error,
+   POST flow to backend, role-based redirect after success.
+   ===================================================================== #}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — {{ request.state.settings.STORE_NAME }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('pos.theme') || 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="brand-mark" aria-hidden="true">
+                    {{ (request.state.settings.STORE_NAME[:1] if request.state.settings.STORE_NAME else 'G')|upper }}
+                </div>
+                <h1>{{ request.state.settings.STORE_NAME }}</h1>
+                <p>Point of Sale — sign in to continue</p>
+            </div>
+
+            <form id="login-form" class="login-form" novalidate>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        required
+                        autofocus
+                        autocomplete="username"
+                        placeholder="e.g. cashier">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrap">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            autocomplete="current-password"
+                            placeholder="Enter your password">
+                        <button type="button" class="password-toggle"
+                                id="password-toggle" aria-label="Show password">
+                            <svg id="eye-on" width="18" height="18" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg id="eye-off" width="18" height="18" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5 20 1 12 1 12a21.83 21.83 0 0 1 5.06-6.06"/>
+                                <path d="M22.54 12.88A21.83 21.83 0 0 0 23 12s-4-8-11-8a10.94 10.94 0 0 0-2 .18"/>
+                                <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block btn-large" id="login-submit">
+                    <span id="login-label">Sign in</span>
+                </button>
+
+                <div id="login-error" class="error-message" role="alert" style="display:none;"></div>
+            </form>
+
+            <div class="login-footer">
+                <p>Default Credentials</p>
+                <small>
+                    Admin: <b>admin / admin123</b><br>
+                    Cashier: <b>cashier / cashier123</b><br>
+                    Owner: <b>owner / owner123</b>
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/utils.js"></script>
+    <script>
+        const loginForm   = document.getElementById('login-form');
+        const loginError  = document.getElementById('login-error');
+        const loginBtn    = document.getElementById('login-submit');
+        const loginLabel  = document.getElementById('login-label');
+        const pwInput     = document.getElementById('password');
+        const pwToggle    = document.getElementById('password-toggle');
+        const eyeOn       = document.getElementById('eye-on');
+        const eyeOff      = document.getElementById('eye-off');
+
+        // Password visibility
+        pwToggle.addEventListener('click', () => {
+            const showing = pwInput.type === 'text';
+            pwInput.type = showing ? 'password' : 'text';
+            eyeOn.style.display  = showing ? '' : 'none';
+            eyeOff.style.display = showing ? 'none' : '';
+            pwToggle.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+            pwInput.focus();
+        });
+
+        function setLoading(on) {
+            loginBtn.disabled = on;
+            loginLabel.textContent = on ? 'Signing in…' : 'Sign in';
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginError.style.display = 'none';
+
+            const username = document.getElementById('username').value.trim();
+            const password = pwInput.value;
+
+            if (!username || !password) {
+                loginError.textContent = 'Please enter both username and password.';
+                loginError.style.display = 'block';
+                return;
+            }
+
+            setLoading(true);
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('password', password);
+
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Preserve original token storage contract
+                    if (data.access_token) {
+                        localStorage.setItem('access_token', data.access_token);
+                    }
+                    if (data.user) {
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        if (data.user.role === 'cashier') {
+                            window.location.href = '/cashier';
+                        } else {
+                            window.location.href = '/inventory';
+                        }
+                    } else {
+                        window.location.href = '/';
+                    }
+                } else {
+                    let msg = 'Login failed';
+                    try { const err = await response.json(); msg = err.detail || msg; } catch (_) {}
+                    loginError.textContent = msg;
+                    loginError.style.display = 'block';
+                }
+            } catch (err) {
+                loginError.textContent = 'Network error. Please try again.';
+                loginError.style.display = 'block';
+            } finally {
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Cashier - POS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/cashier.css">
+{% endblock %}
+
+{% block content %}
+<div class="cashier-container">
+    <!-- Left Panel: Product Scan & Cart -->
+    <div class="cashier-left">
+        <!-- Barcode Input -->
+        <div class="scan-section">
+            <h2>Scan Product</h2>
+            <input 
+                type="text" 
+                id="barcode-input" 
+                placeholder="Scan barcode or enter manually..." 
+                autocomplete="off"
+                autofocus>
+            <p class="scan-hint">Tip: Type quantity followed by * (e.g., 5*) then scan</p>
+        </div>
+        
+        <!-- Shopping Cart -->
+        <div class="cart-section">
+            <div class="cart-header">
+                <h2>Shopping Cart</h2>
+                <button onclick="clearCart()" class="btn-secondary">Clear Cart</button>
+            </div>
+            
+            <div id="cart-items" class="cart-items">
+                <p class="empty-cart">Cart is empty. Scan products to begin.</p>
+            </div>
+            
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="cart-subtotal">PKR 0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Discount:</span>
+                    <span id="cart-discount">PKR 0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>TOTAL:</span>
+                    <span id="cart-total">PKR 0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Panel: Payment & Actions -->
+    <div class="cashier-right">
+        <!-- Held Transactions -->
+        <div class="held-section">
+            <h3>Held Transactions</h3>
+            <div id="held-transactions" class="held-list">
+                <p>No held transactions</p>
+            </div>
+            <button onclick="holdTransaction()" class="btn-secondary btn-block">Hold Current</button>
+        </div>
+        
+        <!-- Payment Section -->
+        <div class="payment-section">
+            <h3>Payment</h3>
+            
+            <div class="payment-method">
+                <label>Payment Method:</label>
+                <select id="payment-method">
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card</option>
+                    <option value="Online">Online</option>
+                    <option value="Credit">Credit</option>
+                </select>
+            </div>
+            
+            <div class="cash-buttons">
+                <button class="cash-btn" data-amount="100">PKR 100</button>
+                <button class="cash-btn" data-amount="500">PKR 500</button>
+                <button class="cash-btn" data-amount="1000">PKR 1000</button>
+                <button class="cash-btn" data-amount="5000">PKR 5000</button>
+            </div>
+            
+            <div class="tender-input">
+                <label>Amount Tendered:</label>
+                <input type="number" id="amount-tendered" placeholder="0.00" step="0.01">
+            </div>
+            
+            <div class="change-display" id="change-display" style="display: none;">
+                <h4>Change to Return</h4>
+                <p class="change-amount">PKR <span id="change-value">0.00</span></p>
+            </div>
+            
+            <button onclick="completeSale()" class="btn-primary btn-block btn-large">
+                Complete Sale (F12)
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Audio elements -->
+<audio id="scan-success-sound" src="/static/sounds/scan_success.mp3" preload="auto"></audio>
+<audio id="scan-error-sound" src="/static/sounds/scan_error.mp3" preload="auto"></audio>
+<audio id="checkout-sound" src="/static/sounds/checkout_complete.mp3" preload="auto"></audio>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/cashier.js"></script>
+{% endblock %}

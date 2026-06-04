@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<div class="users-container">
+    <div class="users-header">
+        <h1>User Management</h1>
+        <button onclick="showAddUserModal()" class="btn-primary">Add User</button>
+    </div>
+    
+    <table class="users-table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Last Login</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="users-tbody">
+            <tr>
+                <td colspan="6" class="loading-row">Loading users...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Add/Edit User Modal -->
+<div id="user-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="user-modal-title">Add User</h2>
+            <button class="close-btn" onclick="closeUserModal()">&times;</button>
+        </div>
+        
+        <form id="user-form" class="modal-body">
+            <div class="form-group">
+                <label for="user-username">Username *</label>
+                <input type="text" id="user-username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="user-fullname">Full Name</label>
+                <input type="text" id="user-fullname">
+            </div>
+            
+            <div class="form-group">
+                <label for="user-password">Password *</label>
+                <input type="password" id="user-password" required>
+                <small>Minimum 6 characters</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="user-role">Role *</label>
+                <select id="user-role" required>
+                    <option value="cashier">Cashier</option>
+                    <option value="admin">Admin</option>
+                    <option value="owner">Owner</option>
+                    <option value="developer">Developer</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="user-active" checked>
+                    Active
+                </label>
+            </div>
+        </form>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeUserModal()">Cancel</button>
+            <button type="button" class="btn-primary" onclick="saveUser()">Save User</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let users = [];
+    let editingUserId = null;
+    
+    // Load users on page load
+    document.addEventListener('DOMContentLoaded', loadUsers);
+    
+    async function loadUsers() {
+        try {
+            const response = await apiRequest('/api/users/');
+            users = response;
+            renderUsers();
+        } catch (error) {
+            showToast('Failed to load users', 'error');
+        }
+    }
+    
+    function renderUsers() {
+        const tbody = document.getElementById('users-tbody');
+        
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6">No users found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = users.map(user => `
+            <tr>
+                <td>${escapeHtml(user.username)}</td>
+                <td>${escapeHtml(user.full_name || '-')}</td>
+                <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                <td>
+                    <span class="status-badge ${user.is_active ? 'status-active' : 'status-inactive'}">
+                        ${user.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                </td>
+                <td>${user.last_login ? formatDateTime(user.last_login) : 'Never'}</td>
+                <td>
+                    <button onclick="editUser(${user.id})" class="btn-small btn-secondary">Edit</button>
+                    <button onclick="toggleUserStatus(${user.id}, ${!user.is_active})" class="btn-small ${user.is_active ? 'btn-danger' : 'btn-success'}">
+                        ${user.is_active ? 'Deactivate' : 'Activate'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    function showAddUserModal() {
+        editingUserId = null;
+        document.getElementById('user-modal-title').textContent = 'Add User';
+        document.getElementById('user-form').reset();
+        document.getElementById('user-modal').style.display = 'flex';
+    }
+    
+    function closeUserModal() {
+        document.getElementById('user-modal').style.display = 'none';
+    }
+    
+    async function editUser(userId) {
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+        
+        editingUserId = userId;
+        document.getElementById('user-modal-title').textContent = 'Edit User';
+        document.getElementById('user-username').value = user.username;
+        document.getElementById('user-fullname').value = user.full_name || '';
+        document.getElementById('user-password').value = '';
+        document.getElementById('user-password').required = false;
+        document.getElementById('user-role').value = user.role;
+        document.getElementById('user-active').checked = user.is_active;
+        
+        document.getElementById('user-modal').style.display = 'flex';
+    }
+    
+    async function saveUser() {
+        const username = document.getElementById('user-username').value;
+        const fullname = document.getElementById('user-fullname').value;
+        const password = document.getElementById('user-password').value;
+        const role = document.getElementById('user-role').value;
+        const is_active = document.getElementById('user-active').checked;
+        
+        if (!username || !role) {
+            showToast('Username and role are required', 'error');
+            return;
+        }
+        
+        if (!editingUserId && !password) {
+            showToast('Password is required for new users', 'error');
+            return;
+        }
+        
+        try {
+            const data = {
+                username,
+                full_name: fullname,
+                role,
+                is_active
+            };
+            
+            if (password) {
+                data.password = password;
+            }
+            
+            if (editingUserId) {
+                await apiRequest(`/api/users/${editingUserId}`, 'PUT', data);
+                showToast('User updated successfully', 'success');
+            } else {
+                await apiRequest('/api/users/', 'POST', data);
+                showToast('User created successfully', 'success');
+            }
+            
+            closeUserModal();
+            loadUsers();
+        } catch (error) {
+            showToast(error.message || 'Failed to save user', 'error');
+        }
+    }
+    
+    async function toggleUserStatus(userId, activate) {
+        if (!confirm(`Are you sure you want to ${activate ? 'activate' : 'deactivate'} this user?`)) {
+            return;
+        }
+        
+        try {
+            if (activate) {
+                await apiRequest(`/api/users/${userId}`, 'PUT', { is_active: true });
+                showToast('User activated', 'success');
+            } else {
+                await apiRequest(`/api/users/${userId}`, 'DELETE');
+                showToast('User deactivated', 'success');
+            }
+            
+            loadUsers();
+        } catch (error) {
+            showToast(error.message || 'Failed to update user status', 'error');
+        }
+    }
+</script>
+{% endblock %}

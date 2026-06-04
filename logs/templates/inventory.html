@@ -1,0 +1,239 @@
+{# =====================================================================
+   inventory.html — Professional inventory management
+   Preserves IDs/handlers used by inventory.js:
+     #search-input, #category-filter, #low-stock-filter, #active-only-filter,
+     #stock-alerts, #products-tbody, #pagination,
+     #product-modal, #product-form, all #product-* inputs, #categories-list,
+     #import-modal, #import-file, #import-progress, #progress-fill,
+     #progress-text, #import-results,
+     showAddProductModal(), showImportModal(), exportInventory(),
+     searchProducts(), filterProducts(), closeProductModal(),
+     saveProduct(), closeImportModal(), uploadFile().
+   ===================================================================== #}
+{% extends "base.html" %}
+
+{% block title %}Inventory Management{% endblock %}
+{% block breadcrumb %}<strong>Inventory</strong> <span style="margin:0 6px">/</span> Products{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/inventory.css">
+{% endblock %}
+
+{% block content %}
+<div class="inventory-container">
+
+    <!-- Header -->
+    <div class="inventory-header">
+        <div>
+            <h1>Inventory</h1>
+            <p style="color:var(--text-muted); margin:0">Manage products, stock levels, and pricing.</p>
+        </div>
+        <div class="header-actions">
+            <button onclick="showImportModal()" class="btn-secondary" type="button">Import Excel/CSV</button>
+            <button onclick="exportInventory()" class="btn-secondary" type="button">Export to Excel</button>
+            <button onclick="showAddProductModal()" class="btn-primary" type="button">+ Add Product</button>
+        </div>
+    </div>
+
+    <!-- KPI Stats (filled in by inventory.js if present; safe defaults otherwise) -->
+    <div class="inventory-stats" id="inventory-stats">
+        <div class="stat-card">
+            <span class="label">Total Products</span>
+            <span class="value" id="stat-total-products">—</span>
+        </div>
+        <div class="stat-card success">
+            <span class="label">Active</span>
+            <span class="value" id="stat-active-products">—</span>
+        </div>
+        <div class="stat-card warn">
+            <span class="label">Low Stock</span>
+            <span class="value" id="stat-low-stock">—</span>
+        </div>
+        <div class="stat-card danger">
+            <span class="label">Out of Stock</span>
+            <span class="value" id="stat-out-of-stock">—</span>
+        </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="inventory-filters" role="search">
+        <input
+            type="search"
+            id="search-input"
+            placeholder="Search by name, barcode, category…"
+            onkeyup="searchProducts()"
+            aria-label="Search products">
+
+        <select id="category-filter" onchange="filterProducts()" aria-label="Filter by category">
+            <option value="">All Categories</option>
+        </select>
+
+        <label>
+            <input type="checkbox" id="low-stock-filter" onchange="filterProducts()">
+            Low Stock Only
+        </label>
+
+        <label>
+            <input type="checkbox" id="active-only-filter" checked onchange="filterProducts()">
+            Active Only
+        </label>
+    </div>
+
+    <!-- Stock Alerts -->
+    <div id="stock-alerts" class="stock-alerts" style="display:none;"></div>
+
+    <!-- Products Table -->
+    <div class="card">
+        <div class="products-table-container">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Barcode</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th class="price">Cost</th>
+                        <th class="price">Retail</th>
+                        <th class="stock">Stock</th>
+                        <th>Status</th>
+                        <th style="text-align:right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="products-tbody">
+                    <tr><td colspan="8" class="loading-row">Loading products…</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- ============ Add / Edit Product Modal ============ -->
+<div id="product-modal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">Add Product</h2>
+            <button class="close-btn" onclick="closeProductModal()" aria-label="Close">&times;</button>
+        </div>
+
+        <form id="product-form" class="modal-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="product-barcode">Barcode *</label>
+                    <input type="text" id="product-barcode" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-name">Product Name *</label>
+                    <input type="text" id="product-name" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="product-category">Category</label>
+                    <input type="text" id="product-category" list="categories-list">
+                    <datalist id="categories-list"></datalist>
+                </div>
+                <div class="form-group">
+                    <label for="product-brand">Brand</label>
+                    <input type="text" id="product-brand">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="product-cost-price">Cost Price *</label>
+                    <input type="number" id="product-cost-price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-retail-price">Retail Price *</label>
+                    <input type="number" id="product-retail-price" step="0.01" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="product-stock">Stock Quantity</label>
+                    <input type="number" id="product-stock" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="product-alert-level">Reorder Alert Level</label>
+                    <input type="number" id="product-alert-level" value="5">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="product-unit">Unit of Measure</label>
+                    <select id="product-unit">
+                        <option value="piece">Piece</option>
+                        <option value="kg">Kilogram</option>
+                        <option value="liter">Liter</option>
+                        <option value="pack">Pack</option>
+                        <option value="dozen">Dozen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="product-supplier">Supplier</label>
+                    <input type="text" id="product-supplier">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="product-notes">Notes</label>
+                <textarea id="product-notes" rows="3"></textarea>
+            </div>
+        </form>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeProductModal()">Cancel</button>
+            <button type="button" class="btn-primary" onclick="saveProduct()">Save Product</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ Import Modal ============ -->
+<div id="import-modal" class="modal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Import Products from Excel/CSV</h2>
+            <button class="close-btn" onclick="closeImportModal()" aria-label="Close">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="import-instructions card card-pad" style="margin-bottom: var(--sp-4)">
+                <h3 style="margin-top:0">File Format Requirements</h3>
+                <ul style="margin:0; padding-left: var(--sp-5); color: var(--text-secondary)">
+                    <li>Accepted formats: <b>.xlsx</b>, <b>.xls</b>, <b>.csv</b></li>
+                    <li>Required columns: Barcode, Product Name, Cost Price, Retail Price</li>
+                    <li>Optional columns: Category, Stock, Alert Level, Brand, Supplier</li>
+                </ul>
+            </div>
+
+            <div class="file-upload form-group">
+                <label for="import-file">Choose File</label>
+                <input type="file" id="import-file" accept=".xlsx,.xls,.csv">
+            </div>
+
+            <div id="import-progress" style="display:none;">
+                <div class="progress-bar" style="background:var(--bg-surface-2);border-radius:var(--r-full);height:8px;overflow:hidden">
+                    <div class="progress-fill" id="progress-fill" style="height:100%;width:0;background:var(--color-primary-600);transition:width .2s"></div>
+                </div>
+                <p id="progress-text" style="margin-top:var(--sp-2);color:var(--text-muted)">Processing…</p>
+            </div>
+
+            <div id="import-results" style="display:none;margin-top:var(--sp-4)"></div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeImportModal()">Close</button>
+            <button type="button" class="btn-primary" onclick="uploadFile()">Upload &amp; Import</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/inventory.js"></script>
+{% endblock %}

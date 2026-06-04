@@ -1,0 +1,211 @@
+{# =====================================================================
+   settings.html — Professional settings center (tabbed)
+   Preserves all original IDs and functions; only reorganizes UI.
+     #printer-select, refreshPrinters(), testPrinter(), openCashDrawer(),
+     #sync-status, manualSync(), viewSyncHistory(),
+     backupDatabase(), viewSystemInfo()
+   ===================================================================== #}
+{% extends "base.html" %}
+
+{% block title %}System Settings{% endblock %}
+{% block breadcrumb %}<strong>Settings</strong>{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-layout { display: grid; grid-template-columns: 220px 1fr; gap: var(--sp-5); }
+    @media (max-width: 900px) { .settings-layout { grid-template-columns: 1fr; } }
+    .settings-tabs { display: flex; flex-direction: column; gap: 4px; position: sticky; top: calc(var(--header-h) + var(--sp-4)); align-self: start; }
+    .settings-tabs button {
+        text-align: left; padding: 10px 14px; border-radius: var(--r-md);
+        background: transparent; border: 1px solid transparent;
+        color: var(--text-secondary); cursor: pointer; font-weight: var(--fw-medium);
+    }
+    .settings-tabs button:hover { background: var(--bg-surface-2); color: var(--text-primary); }
+    .settings-tabs button.active { background: var(--color-primary-50); color: var(--color-primary-700); border-color: var(--color-primary-100); }
+    [data-theme="dark"] .settings-tabs button.active { background: rgba(96,165,250,.12); color: var(--brand); }
+    .settings-section { display: none; }
+    .settings-section.active { display: block; }
+    .settings-section h2 { margin-top: 0; }
+    .form-actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-top: var(--sp-3); }
+    .kv { display: grid; grid-template-columns: 180px 1fr; gap: 8px 16px; font-size: var(--fs-14); }
+    .kv dt { color: var(--text-muted); }
+    .kv dd { margin: 0; color: var(--text-primary); font-weight: var(--fw-medium); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <h1>System Settings</h1>
+
+    <div class="settings-layout">
+
+        <!-- Tabs -->
+        <nav class="settings-tabs" aria-label="Settings sections">
+            <button type="button" class="active" data-tab="printer">Printer</button>
+            <button type="button" data-tab="receipt">Receipt</button>
+            <button type="button" data-tab="sync">Cloud Sync</button>
+            <button type="button" data-tab="security">Security</button>
+            <button type="button" data-tab="database">Database</button>
+            <button type="button" data-tab="preferences">Preferences</button>
+        </nav>
+
+        <!-- Panels -->
+        <div>
+            <section class="settings-section active card card-pad" id="tab-printer">
+                <h2>Printer Configuration</h2>
+                <div class="form-group">
+                    <label for="printer-select">Available Printers</label>
+                    <div class="row" style="gap:8px">
+                        <select id="printer-select" style="flex:1"><option value="">Loading…</option></select>
+                        <button onclick="refreshPrinters()" class="btn-secondary" type="button">Refresh</button>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button onclick="testPrinter()" class="btn-primary" type="button">Print Test Receipt</button>
+                    <button onclick="openCashDrawer()" class="btn-secondary" type="button">Open Cash Drawer</button>
+                </div>
+            </section>
+
+            <section class="settings-section card card-pad" id="tab-receipt">
+                <h2>Receipt Settings</h2>
+                <p style="color:var(--text-muted)">Footer text, logo, and per-receipt options. Configure via system info endpoint.</p>
+            </section>
+
+            <section class="settings-section card card-pad" id="tab-sync">
+                <h2>Cloud Synchronization</h2>
+                <div id="sync-status" class="card card-pad" style="background:var(--bg-surface-2); margin-bottom:var(--sp-3)">
+                    Loading sync status…
+                </div>
+                <div class="form-actions">
+                    <button onclick="manualSync()" class="btn-primary" type="button">Sync Now</button>
+                    <button onclick="viewSyncHistory()" class="btn-secondary" type="button">View History</button>
+                </div>
+            </section>
+
+            <section class="settings-section card card-pad" id="tab-security">
+                <h2>Security</h2>
+                <p style="color:var(--text-muted)">Password policies, session timeout, and role permissions.</p>
+            </section>
+
+            <section class="settings-section card card-pad" id="tab-database">
+                <h2>Database Maintenance</h2>
+                <div class="form-actions">
+                    <button onclick="backupDatabase()" class="btn-primary" type="button">Create Backup</button>
+                    <button onclick="viewSystemInfo()" class="btn-secondary" type="button">System Info</button>
+                </div>
+            </section>
+
+            <section class="settings-section card card-pad" id="tab-preferences">
+                <h2>User Preferences</h2>
+                <div class="form-group">
+                    <label>Theme</label>
+                    <div class="row" style="gap:8px">
+                        <button class="btn-secondary" type="button" onclick="document.getElementById('theme-toggle').click()">Toggle Light / Dark</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---- Tabs ----
+    document.querySelectorAll('.settings-tabs button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.settings-tabs button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    // ---- Original logic preserved verbatim ----
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadPrinters();
+        await loadSyncStatus();
+    });
+
+    async function loadPrinters() {
+        try {
+            const response = await apiRequest('/api/system/printers/discover');
+            const select = document.getElementById('printer-select');
+            if (response.printers && response.printers.length > 0) {
+                select.innerHTML = response.printers.map(printer =>
+                    `<option value="${printer}" ${printer === response.current ? 'selected' : ''}>${printer}</option>`
+                ).join('');
+            } else {
+                select.innerHTML = '<option value="">No printers found</option>';
+            }
+        } catch (error) {
+            showToast('Failed to load printers', 'error');
+        }
+    }
+
+    async function refreshPrinters() {
+        await loadPrinters();
+        showToast('Printers refreshed', 'success');
+    }
+
+    async function testPrinter() {
+        try { await apiRequest('/api/system/printers/test', 'POST'); showToast('Test receipt sent to printer', 'success'); }
+        catch (error) { showToast('Print test failed', 'error'); }
+    }
+
+    async function openCashDrawer() {
+        try { await apiRequest('/api/system/printers/cash-drawer', 'POST'); showToast('Cash drawer opened', 'success'); }
+        catch (error) { showToast('Failed to open cash drawer', 'error'); }
+    }
+
+    async function loadSyncStatus() {
+        try {
+            const status = await apiRequest('/api/sync/status');
+            const statusDiv = document.getElementById('sync-status');
+            statusDiv.innerHTML = `
+                <dl class="kv">
+                    <dt>Status</dt><dd>${status.enabled ? (status.is_running ? '🟢 Running' : '🟡 Stopped') : '⚪ Disabled'}</dd>
+                    <dt>Pending Records</dt><dd>${status.pending_records}</dd>
+                    ${status.last_sync ? `
+                        <dt>Last Sync</dt><dd>${formatDateTime(status.last_sync.timestamp)}</dd>
+                        <dt>Last Status</dt><dd>${status.last_sync.status}</dd>
+                    ` : '<dt>History</dt><dd>No sync history</dd>'}
+                </dl>`;
+        } catch (error) {
+            showToast('Failed to load sync status', 'error');
+        }
+    }
+
+    async function manualSync() {
+        try {
+            showLoading(true);
+            const result = await apiRequest('/api/sync/manual', 'POST');
+            showToast(result.message, 'success');
+            await loadSyncStatus();
+        } catch (error) { showToast('Sync failed', 'error'); }
+        finally { showLoading(false); }
+    }
+
+    async function viewSyncHistory() {
+        try {
+            const history = await apiRequest('/api/sync/history');
+            console.log(history);
+            showToast('Sync history loaded (check console)', 'info');
+        } catch (error) { showToast('Failed to load sync history', 'error'); }
+    }
+
+    async function backupDatabase() {
+        try {
+            showLoading(true);
+            const result = await apiRequest('/api/system/database/backup', 'POST');
+            showToast(result.message, 'success');
+        } catch (error) { showToast('Backup failed', 'error'); }
+        finally { showLoading(false); }
+    }
+
+    async function viewSystemInfo() {
+        try {
+            const info = await apiRequest('/api/system/info');
+            alert(JSON.stringify(info, null, 2));
+        } catch (error) { showToast('Failed to load system info', 'error'); }
+    }
+</script>
+{% endblock %}

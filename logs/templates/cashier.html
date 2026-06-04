@@ -1,0 +1,157 @@
+{# =====================================================================
+   cashier.html — High-speed POS workstation
+   Preserves all original IDs/handlers used by cashier.js:
+     #barcode-input, #cart-items, #cart-subtotal, #cart-discount,
+     #cart-total, #held-transactions, #payment-method, .cash-btn[data-amount],
+     #amount-tendered, #change-display, #change-value, audio IDs,
+     clearCart(), holdTransaction(), completeSale().
+   ===================================================================== #}
+{% extends "base.html" %}
+
+{% block title %}Cashier — POS{% endblock %}
+{% block breadcrumb %}<strong>Cashier</strong> <span style="margin:0 6px">/</span> New Sale{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/cashier.css">
+{% endblock %}
+
+{% block content %}
+<div class="cashier-container">
+
+    <!-- ============ LEFT: Scan + Cart ============ -->
+    <div class="cashier-left">
+
+        <!-- Scan -->
+        <section class="scan-section" aria-label="Scan product">
+            <h2>Scan or Search Product</h2>
+            <input
+                type="text"
+                id="barcode-input"
+                placeholder="Scan barcode, type name, or enter manually…"
+                autocomplete="off"
+                inputmode="search"
+                autofocus
+                aria-label="Barcode or product search">
+            <p class="scan-hint">
+                Tip: type quantity then <span class="kbd">*</span> before scanning (e.g.
+                <span class="kbd">5*</span>) — Press <span class="kbd">F2</span> to focus,
+                <span class="kbd">F12</span> to complete sale.
+            </p>
+            <!-- Optional live suggestions list; cashier.js can populate. -->
+            <div id="scan-suggestions" class="scan-suggestions" hidden></div>
+        </section>
+
+        <!-- Cart -->
+        <section class="cart-section" aria-label="Shopping cart">
+            <div class="cart-header">
+                <h2>Shopping Cart <span id="cart-count" class="cart-count">0</span></h2>
+                <div class="row">
+                    <button type="button" onclick="holdTransaction()" class="btn-ghost" title="Hold current sale (F9)">Hold</button>
+                    <button type="button" onclick="clearCart()" class="btn-secondary" title="Clear cart (Esc)">Clear Cart</button>
+                </div>
+            </div>
+
+            <div id="cart-items" class="cart-items" role="region" aria-live="polite">
+                <p class="empty-cart">Cart is empty. Scan a product to begin.</p>
+            </div>
+
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">PKR 0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Discount</span>
+                    <span id="cart-discount">PKR 0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax</span>
+                    <span id="cart-tax">PKR 0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>TOTAL</span>
+                    <span id="cart-total">PKR 0.00</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ RIGHT: Hold + Payment ============ -->
+    <div class="cashier-right">
+
+        <section class="held-section" aria-label="Held transactions">
+            <h3>Held Transactions</h3>
+            <div id="held-transactions" class="held-list">
+                <p style="color:var(--text-muted);margin:0">No held transactions</p>
+            </div>
+            <button type="button" onclick="holdTransaction()" class="btn-secondary btn-block">Hold Current Sale</button>
+        </section>
+
+        <section class="payment-section" aria-label="Payment">
+            <h3>Payment</h3>
+
+            <div class="payment-method form-group">
+                <label for="payment-method">Payment Method</label>
+                <select id="payment-method">
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card</option>
+                    <option value="Online">Online</option>
+                    <option value="Credit">Credit</option>
+                </select>
+            </div>
+
+            <div class="cash-buttons" role="group" aria-label="Quick cash amounts">
+                <button type="button" class="cash-btn" data-amount="100">PKR 100</button>
+                <button type="button" class="cash-btn" data-amount="500">PKR 500</button>
+                <button type="button" class="cash-btn" data-amount="1000">PKR 1,000</button>
+                <button type="button" class="cash-btn" data-amount="5000">PKR 5,000</button>
+            </div>
+
+            <div class="tender-input form-group">
+                <label for="amount-tendered">Amount Tendered</label>
+                <input type="number" id="amount-tendered" placeholder="0.00" step="0.01" inputmode="decimal">
+            </div>
+
+            <div class="change-display" id="change-display" style="display:none;">
+                <h4>Change to Return</h4>
+                <p class="change-amount">PKR <span id="change-value">0.00</span></p>
+            </div>
+
+            <button type="button" onclick="completeSale()" class="btn-primary btn-block btn-xl">
+                Complete Sale &nbsp;<span class="kbd" style="background:rgba(255,255,255,.15);color:#fff;border-color:transparent">F12</span>
+            </button>
+        </section>
+    </div>
+</div>
+
+<!-- Audio (IDs preserved) -->
+<audio id="scan-success-sound" src="/static/sounds/scan_success.mp3" preload="auto"></audio>
+<audio id="scan-error-sound"   src="/static/sounds/scan_error.mp3"   preload="auto"></audio>
+<audio id="checkout-sound"     src="/static/sounds/checkout_complete.mp3" preload="auto"></audio>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/cashier.js"></script>
+<script>
+  // ----- Keyboard shortcuts: non-invasive, no backend changes -----
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'F2') { e.preventDefault(); var i = document.getElementById('barcode-input'); if (i) i.focus(); }
+    if (e.key === 'F9') { e.preventDefault(); if (typeof holdTransaction === 'function') holdTransaction(); }
+    if (e.key === 'F12') { e.preventDefault(); if (typeof completeSale === 'function') completeSale(); }
+    if (e.key === 'Escape') { var inp = document.getElementById('barcode-input'); if (inp) inp.value = ''; }
+  });
+  // Quick-cash buttons populate the tender field (UI helper only).
+  document.querySelectorAll('.cash-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var amt = btn.getAttribute('data-amount');
+      var input = document.getElementById('amount-tendered');
+      if (input) {
+        var cur = parseFloat(input.value || '0') || 0;
+        input.value = (cur + parseFloat(amt)).toFixed(2);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  });
+</script>
+{% endblock %}

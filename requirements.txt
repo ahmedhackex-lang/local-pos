@@ -1,0 +1,46 @@
+# ===== GROCERY POS REQUIREMENTS =====
+
+# Recommended: Python 3.11.x
+
+# Web Framework
+
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# Database
+
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Authentication & Security
+
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.1
+cryptography==42.0.0
+bcrypt==4.1.2
+
+# HTTP Client
+
+httpx==0.26.0
+
+# Data Validation (Pydantic v1)
+
+pydantic==1.10.13
+email-validator==2.1.0
+
+# Templates
+
+jinja2==3.1.6
+
+# Data Processing
+
+pandas==2.3.0
+openpyxl==3.1.5
+xlsxwriter==3.2.5
+
+# Utilities
+
+python-dateutil==2.8.2

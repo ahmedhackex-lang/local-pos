@@ -1,0 +1,200 @@
+2026-06-01 21:29:16,441 - main - INFO - ============================================================
+2026-06-01 21:29:16,441 - main - INFO - GROCERY POS SYSTEM - STARTING UP
+2026-06-01 21:29:16,442 - main - INFO - ============================================================
+2026-06-01 21:29:16,442 - main - INFO - Initializing database...
+2026-06-01 21:29:16,865 - main - INFO - Creating default users...
+2026-06-01 21:29:16,895 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-06-01 21:29:18,029 - main - INFO - Initializing printer...
+2026-06-01 21:29:18,033 - main - INFO - Starting sync service...
+2026-06-01 21:29:18,034 - main - INFO - ============================================================
+2026-06-01 21:29:18,035 - main - INFO - APPLICATION READY
+2026-06-01 21:29:18,036 - main - INFO - Server: http://127.0.0.1:8000
+2026-06-01 21:29:18,037 - main - INFO - ============================================================
+2026-06-01 21:31:18,924 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:31:20,933 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:31:31,691 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:36:07,686 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:38:47,543 - main - INFO - ============================================================
+2026-06-01 21:38:47,544 - main - INFO - GROCERY POS SYSTEM - STARTING UP
+2026-06-01 21:38:47,544 - main - INFO - ============================================================
+2026-06-01 21:38:47,545 - main - INFO - Initializing database...
+2026-06-01 21:38:47,550 - main - INFO - Creating default users...
+2026-06-01 21:38:47,577 - main - INFO - Initializing printer...
+2026-06-01 21:38:47,577 - main - INFO - Starting sync service...
+2026-06-01 21:38:47,577 - main - INFO - ============================================================
+2026-06-01 21:38:47,578 - main - INFO - APPLICATION READY
+2026-06-01 21:38:47,578 - main - INFO - Server: http://127.0.0.1:8000
+2026-06-01 21:38:47,578 - main - INFO - ============================================================
+2026-06-01 21:39:01,027 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-06-01 21:40:56,228 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:41:12,454 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:41:21,125 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:41:32,473 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:42:06,490 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:42:10,689 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:42:17,865 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:42:34,747 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:43:22,947 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:43:30,333 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:43:30,717 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:43:38,897 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:44:22,804 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:45:37,497 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-01 21:45:42,395 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:21:32,765 - main - INFO - ============================================================
+2026-06-02 02:21:32,765 - main - INFO - GROCERY POS SYSTEM - STARTING UP
+2026-06-02 02:21:32,765 - main - INFO - ============================================================
+2026-06-02 02:21:32,765 - main - INFO - Initializing database...
+2026-06-02 02:21:32,796 - main - INFO - Creating default users...
+2026-06-02 02:21:32,827 - main - INFO - Initializing printer...
+2026-06-02 02:21:32,827 - main - INFO - Starting sync service...
+2026-06-02 02:21:32,827 - main - INFO - ============================================================
+2026-06-02 02:21:32,827 - main - INFO - APPLICATION READY
+2026-06-02 02:21:32,827 - main - INFO - Server: http://127.0.0.1:8000
+2026-06-02 02:21:32,827 - main - INFO - ============================================================
+2026-06-02 02:21:45,820 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-06-02 02:22:07,318 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:22:59,241 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:23:14,666 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:23:25,988 - printer - WARNING - Printer not configured. Cannot open cash drawer.
+2026-06-02 02:23:28,084 - printer - WARNING - Printer not configured. Cannot open cash drawer.
+2026-06-02 02:23:29,032 - printer - WARNING - Printer not configured. Skipping print.
+2026-06-02 02:24:01,871 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:24:14,239 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:24:16,696 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:24:19,502 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:38:20,785 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:38:51,874 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:54:10,296 - main - INFO - ============================================================
+2026-06-02 02:54:10,296 - main - INFO - GROCERY POS SYSTEM - SHUTTING DOWN
+2026-06-02 02:54:10,296 - main - INFO - ============================================================
+2026-06-02 02:54:14,975 - main - INFO - ============================================================
+2026-06-02 02:54:14,976 - main - INFO - GROCERY POS SYSTEM - STARTING UP
+2026-06-02 02:54:14,977 - main - INFO - ============================================================
+2026-06-02 02:54:14,977 - main - INFO - Initializing database...
+2026-06-02 02:54:14,990 - main - INFO - Creating default users...
+2026-06-02 02:54:15,019 - main - INFO - Initializing printer...
+2026-06-02 02:54:15,022 - main - INFO - Starting sync service...
+2026-06-02 02:54:15,023 - main - INFO - ============================================================
+2026-06-02 02:54:15,024 - main - INFO - APPLICATION READY
+2026-06-02 02:54:15,025 - main - INFO - Server: http://127.0.0.1:8000
+2026-06-02 02:54:15,025 - main - INFO - ============================================================
+2026-06-02 02:54:16,213 - main - ERROR - Server error: type object 'ProductResponse' has no attribute 'model_validate'
+2026-06-02 02:54:17,652 - main - ERROR - Server error: type object 'ProductResponse' has no attribute 'model_validate'
+2026-06-02 02:54:18,375 - main - ERROR - Server error: type object 'ProductResponse' has no attribute 'model_validate'
+2026-06-02 02:54:19,009 - main - ERROR - Server error: type object 'ProductResponse' has no attribute 'model_validate'
+2026-06-02 02:55:36,576 - main - INFO - ============================================================
+2026-06-02 02:55:36,577 - main - INFO - GROCERY POS SYSTEM - SHUTTING DOWN
+2026-06-02 02:55:36,577 - main - INFO - ============================================================
+2026-06-02 02:55:53,382 - main - INFO - ============================================================
+2026-06-02 02:55:53,383 - main - INFO - GROCERY POS SYSTEM - STARTING UP
+2026-06-02 02:55:53,383 - main - INFO - ============================================================
+2026-06-02 02:55:53,383 - main - INFO - Initializing database...
+2026-06-02 02:55:53,388 - main - INFO - Creating default users...
+2026-06-02 02:55:53,407 - main - INFO - Initializing printer...
+2026-06-02 02:55:53,407 - main - INFO - Starting sync service...
+2026-06-02 02:55:53,407 - main - INFO - ============================================================
+2026-06-02 02:55:53,407 - main - INFO - APPLICATION READY
+2026-06-02 02:55:53,407 - main - INFO - Server: http://127.0.0.1:8000
+2026-06-02 02:55:53,407 - main - INFO - ============================================================
+2026-06-02 02:56:08,210 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-06-02 02:56:08,540 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:56:14,753 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:56:35,482 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-02 02:56:36,804 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:05:16,570 - main - INFO - ============================================================
+2026-06-03 21:05:16,570 - main - INFO - GROCERY POS SYSTEM - STARTING UP
+2026-06-03 21:05:16,570 - main - INFO - ============================================================
+2026-06-03 21:05:16,570 - main - INFO - Initializing database...
+2026-06-03 21:05:16,586 - main - INFO - Creating default users...
+2026-06-03 21:05:16,617 - main - INFO - Initializing printer...
+2026-06-03 21:05:16,617 - main - INFO - Starting sync service...
+2026-06-03 21:05:16,617 - main - INFO - ============================================================
+2026-06-03 21:05:16,617 - main - INFO - APPLICATION READY
+2026-06-03 21:05:16,617 - main - INFO - Server: http://127.0.0.1:8000
+2026-06-03 21:05:16,617 - main - INFO - ============================================================
+2026-06-03 21:05:35,632 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-06-03 21:05:35,977 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:05:37,153 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:05:38,756 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:05:40,033 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:05:55,929 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:05:57,107 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:21:07,679 - main - INFO - ============================================================
+2026-06-03 21:21:07,679 - main - INFO - GROCERY POS SYSTEM - STARTING UP
+2026-06-03 21:21:07,679 - main - INFO - ============================================================
+2026-06-03 21:21:07,679 - main - INFO - Initializing database...
+2026-06-03 21:21:07,679 - main - INFO - Creating default users...
+2026-06-03 21:21:07,710 - main - INFO - Initializing printer...
+2026-06-03 21:21:07,710 - main - INFO - Starting sync service...
+2026-06-03 21:21:07,710 - main - INFO - ============================================================
+2026-06-03 21:21:07,710 - main - INFO - APPLICATION READY
+2026-06-03 21:21:07,710 - main - INFO - Server: http://127.0.0.1:8000
+2026-06-03 21:21:07,710 - main - INFO - ============================================================
+2026-06-03 21:21:16,136 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-06-03 21:21:16,438 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:21:17,629 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:23:54,632 - main - INFO - ============================================================
+2026-06-03 21:23:54,632 - main - INFO - GROCERY POS SYSTEM - STARTING UP
+2026-06-03 21:23:54,632 - main - INFO - ============================================================
+2026-06-03 21:23:54,632 - main - INFO - Initializing database...
+2026-06-03 21:23:54,632 - main - INFO - Creating default users...
+2026-06-03 21:23:54,663 - main - INFO - Initializing printer...
+2026-06-03 21:23:54,663 - main - INFO - Starting sync service...
+2026-06-03 21:23:54,663 - main - INFO - ============================================================
+2026-06-03 21:23:54,663 - main - INFO - APPLICATION READY
+2026-06-03 21:23:54,663 - main - INFO - Server: http://127.0.0.1:8000
+2026-06-03 21:23:54,663 - main - INFO - ============================================================
+2026-06-03 21:24:25,983 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\Ghost\AppData\Local\Programs\Python\Python311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-06-03 21:24:41,481 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:24:46,363 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:24:50,233 - main - ERROR - Server error: You must have the config attribute orm_mode=True to use from_orm
+2026-06-03 21:26:07,199 - main - INFO - ============================================================
+2026-06-03 21:26:07,199 - main - INFO - GROCERY POS SYSTEM - STARTING UP
+2026-06-03 21:26:07,199 - main - INFO - ============================================================
+2026-06-03 21:26:07,199 - main - INFO - Initializing database...
+2026-06-03 21:26:07,199 - main - INFO - Creating default users...
+2026-06-03 21:26:07,230 - main - INFO - Initializing printer...
+2026-06-03 21:26:07,230 - main - INFO - Starting sync service...
+2026-06-03 21:26:07,230 - main - INFO - ============================================================
+2026-06-03 21:26:07,230 - main - INFO - APPLICATION READY
+2026-06-03 21:26:07,230 - main - INFO - Server: http://127.0.0.1:8000
+2026-06-03 21:26:07,230 - main - INFO - ============================================================
+2026-06-03 21:26:07,230 - main - INFO - ============================================================
+2026-06-03 21:26:07,230 - main - INFO - GROCERY POS SYSTEM - SHUTTING DOWN
+2026-06-03 21:26:07,230 - main - INFO - ============================================================

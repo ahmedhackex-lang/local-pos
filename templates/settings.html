@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <h1>System Settings</h1>
+    
+    <div class="settings-sections">
+        <!-- Printer Settings -->
+        <section class="settings-section">
+            <h2>Printer Configuration</h2>
+            
+            <div class="form-group">
+                <label>Available Printers:</label>
+                <select id="printer-select">
+                    <option value="">Loading...</option>
+                </select>
+                <button onclick="refreshPrinters()" class="btn-secondary">Refresh</button>
+            </div>
+            
+            <div class="form-actions">
+                <button onclick="testPrinter()" class="btn-primary">Print Test Receipt</button>
+                <button onclick="openCashDrawer()" class="btn-secondary">Open Cash Drawer</button>
+            </div>
+        </section>
+        
+        <!-- Sync Settings -->
+        <section class="settings-section">
+            <h2>Cloud Synchronization</h2>
+            
+            <div id="sync-status">
+                Loading sync status...
+            </div>
+            
+            <div class="form-actions">
+                <button onclick="manualSync()" class="btn-primary">Sync Now</button>
+                <button onclick="viewSyncHistory()" class="btn-secondary">View History</button>
+            </div>
+        </section>
+        
+        <!-- Database Maintenance -->
+        <section class="settings-section">
+            <h2>Database Maintenance</h2>
+            
+            <div class="form-actions">
+                <button onclick="backupDatabase()" class="btn-primary">Create Backup</button>
+                <button onclick="viewSystemInfo()" class="btn-secondary">System Info</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadPrinters();
+        await loadSyncStatus();
+    });
+    
+    async function loadPrinters() {
+        try {
+            const response = await apiRequest('/api/system/printers/discover');
+            const select = document.getElementById('printer-select');
+            
+            if (response.printers && response.printers.length > 0) {
+                select.innerHTML = response.printers.map(printer => 
+                    `<option value="${printer}" ${printer === response.current ? 'selected' : ''}>${printer}</option>`
+                ).join('');
+            } else {
+                select.innerHTML = '<option value="">No printers found</option>';
+            }
+        } catch (error) {
+            showToast('Failed to load printers', 'error');
+        }
+    }
+    
+    async function refreshPrinters() {
+        await loadPrinters();
+        showToast('Printers refreshed', 'success');
+    }
+    
+    async function testPrinter() {
+        try {
+            await apiRequest('/api/system/printers/test', 'POST');
+            showToast('Test receipt sent to printer', 'success');
+        } catch (error) {
+            showToast('Print test failed', 'error');
+        }
+    }
+    
+    async function openCashDrawer() {
+        try {
+            await apiRequest('/api/system/printers/cash-drawer', 'POST');
+            showToast('Cash drawer opened', 'success');
+        } catch (error) {
+            showToast('Failed to open cash drawer', 'error');
+        }
+    }
+    
+    async function loadSyncStatus() {
+        try {
+            const status = await apiRequest('/api/sync/status');
+            
+            const statusDiv = document.getElementById('sync-status');
+            statusDiv.innerHTML = `
+                <p><strong>Status:</strong> ${status.enabled ? (status.is_running ? 'Running' : 'Stopped') : 'Disabled'}</p>
+                <p><strong>Pending Records:</strong> ${status.pending_records}</p>
+                ${status.last_sync ? `
+                    <p><strong>Last Sync:</strong> ${formatDateTime(status.last_sync.timestamp)}</p>
+                    <p><strong>Last Status:</strong> ${status.last_sync.status}</p>
+                ` : '<p>No sync history</p>'}
+            `;
+        } catch (error) {
+            showToast('Failed to load sync status', 'error');
+        }
+    }
+    
+    async function manualSync() {
+        try {
+            showLoading(true);
+            const result = await apiRequest('/api/sync/manual', 'POST');
+            showToast(result.message, 'success');
+            await loadSyncStatus();
+        } catch (error) {
+            showToast('Sync failed', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+    
+    async function viewSyncHistory() {
+        try {
+            const history = await apiRequest('/api/sync/history');
+            // Display history in modal or new page
+            console.log(history);
+            showToast('Sync history loaded (check console)', 'info');
+        } catch (error) {
+            showToast('Failed to load sync history', 'error');
+        }
+    }
+    
+    async function backupDatabase() {
+        try {
+            showLoading(true);
+            const result = await apiRequest('/api/system/database/backup', 'POST');
+            showToast(result.message, 'success');
+        } catch (error) {
+            showToast('Backup failed', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+    
+    async function viewSystemInfo() {
+        try {
+            const info = await apiRequest('/api/system/info');
+            alert(JSON.stringify(info, null, 2));
+        } catch (error) {
+            showToast('Failed to load system info', 'error');
+        }
+    }
+</script>
+{% endblock %}

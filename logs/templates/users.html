@@ -1,0 +1,213 @@
+{# =====================================================================
+   users.html — User management
+   Preserves all IDs / handlers used by the inline JS:
+     #users-tbody, #user-modal, #user-modal-title, #user-form,
+     #user-username, #user-fullname, #user-password, #user-role,
+     #user-active, showAddUserModal(), closeUserModal(), saveUser(),
+     editUser(), toggleUserStatus(), loadUsers().
+   ===================================================================== #}
+{% extends "base.html" %}
+
+{% block title %}User Management{% endblock %}
+{% block breadcrumb %}<strong>Users</strong> <span style="margin:0 6px">/</span> All Users{% endblock %}
+
+{% block content %}
+<div class="users-container">
+    <div class="users-header row-between" style="margin-bottom:var(--sp-5)">
+        <div>
+            <h1 style="margin:0">User Management</h1>
+            <p style="color:var(--text-muted);margin:0">Manage staff accounts, roles, and access.</p>
+        </div>
+        <button onclick="showAddUserModal()" class="btn-primary" type="button">+ Add User</button>
+    </div>
+
+    <div class="card">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Last Login</th>
+                    <th style="text-align:right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-tbody">
+                <tr><td colspan="6" class="loading-row">Loading users…</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============ Add/Edit User Modal ============ -->
+<div id="user-modal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="user-modal-title">
+    <div class="modal-content" style="max-width:520px">
+        <div class="modal-header">
+            <h2 id="user-modal-title">Add User</h2>
+            <button class="close-btn" onclick="closeUserModal()" aria-label="Close">&times;</button>
+        </div>
+
+        <form id="user-form" class="modal-body" onsubmit="event.preventDefault(); saveUser();">
+            <div class="form-group">
+                <label for="user-username">Username *</label>
+                <input type="text" id="user-username" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="user-fullname">Full Name</label>
+                <input type="text" id="user-fullname" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="user-password">Password *</label>
+                <input type="password" id="user-password" required autocomplete="new-password">
+                <small>Minimum 6 characters. Leave blank when editing to keep current password.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="user-role">Role *</label>
+                <select id="user-role" required>
+                    <option value="cashier">Cashier</option>
+                    <option value="admin">Admin</option>
+                    <option value="owner">Owner</option>
+                    <option value="developer">Developer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label style="flex-direction:row;align-items:center;gap:8px">
+                    <input type="checkbox" id="user-active" checked>
+                    <span>Active</span>
+                </label>
+            </div>
+        </form>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeUserModal()">Cancel</button>
+            <button type="button" class="btn-primary" onclick="saveUser()">Save User</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- Logic preserved from original users.html ----------
+    let users = [];
+    let editingUserId = null;
+
+    document.addEventListener('DOMContentLoaded', loadUsers);
+
+    async function loadUsers() {
+        try {
+            const response = await apiRequest('/api/users/');
+            users = response;
+            renderUsers();
+        } catch (error) {
+            showToast('Failed to load users', 'error');
+        }
+    }
+
+    function renderUsers() {
+        const tbody = document.getElementById('users-tbody');
+        if (!users || users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="loading-row">No users found</td></tr>';
+            return;
+        }
+        tbody.innerHTML = users.map(user => `
+            <tr>
+                <td><strong>${escapeHtml(user.username)}</strong></td>
+                <td>${escapeHtml(user.full_name || '—')}</td>
+                <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                <td>
+                    <span class="status-pill ${user.is_active ? 'status-active' : 'status-inactive'}">
+                        ${user.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                </td>
+                <td>${user.last_login ? formatDateTime(user.last_login) : '<span style="color:var(--text-muted)">Never</span>'}</td>
+                <td style="text-align:right">
+                    <button onclick="editUser(${user.id})" class="btn-secondary" style="padding:6px 10px;min-height:32px;font-size:var(--fs-12)">Edit</button>
+                    <button onclick="toggleUserStatus(${user.id}, ${!user.is_active})"
+                        class="${user.is_active ? 'btn-danger' : 'btn-success'}"
+                        style="padding:6px 10px;min-height:32px;font-size:var(--fs-12)">
+                        ${user.is_active ? 'Deactivate' : 'Activate'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function showAddUserModal() {
+        editingUserId = null;
+        document.getElementById('user-modal-title').textContent = 'Add User';
+        document.getElementById('user-form').reset();
+        document.getElementById('user-password').required = true;
+        document.getElementById('user-modal').style.display = 'flex';
+        setTimeout(() => document.getElementById('user-username').focus(), 50);
+    }
+
+    function closeUserModal() {
+        document.getElementById('user-modal').style.display = 'none';
+    }
+
+    async function editUser(userId) {
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+        editingUserId = userId;
+        document.getElementById('user-modal-title').textContent = 'Edit User';
+        document.getElementById('user-username').value = user.username;
+        document.getElementById('user-fullname').value = user.full_name || '';
+        document.getElementById('user-password').value = '';
+        document.getElementById('user-password').required = false;
+        document.getElementById('user-role').value = user.role;
+        document.getElementById('user-active').checked = user.is_active;
+        document.getElementById('user-modal').style.display = 'flex';
+    }
+
+    async function saveUser() {
+        const username = document.getElementById('user-username').value.trim();
+        const fullname = document.getElementById('user-fullname').value.trim();
+        const password = document.getElementById('user-password').value;
+        const role     = document.getElementById('user-role').value;
+        const is_active= document.getElementById('user-active').checked;
+
+        if (!username || !role) { showToast('Username and role are required', 'error'); return; }
+        if (!editingUserId && (!password || password.length < 6)) {
+            showToast('Password (min 6 chars) is required for new users', 'error'); return;
+        }
+
+        try {
+            const data = { username, full_name: fullname, role, is_active };
+            if (password) data.password = password;
+
+            if (editingUserId) {
+                await apiRequest(`/api/users/${editingUserId}`, 'PUT', data);
+                showToast('User updated successfully', 'success');
+            } else {
+                await apiRequest('/api/users/', 'POST', data);
+                showToast('User created successfully', 'success');
+            }
+            closeUserModal();
+            await loadUsers();
+        } catch (e) {
+            showToast('Failed to save user', 'error');
+        }
+    }
+
+    async function toggleUserStatus(userId, newStatus) {
+        if (!confirm(newStatus ? 'Activate this user?' : 'Deactivate this user?')) return;
+        try {
+            await apiRequest(`/api/users/${userId}`, 'PUT', { is_active: newStatus });
+            showToast('User status updated', 'success');
+            await loadUsers();
+        } catch (e) {
+            showToast('Failed to update user', 'error');
+        }
+    }
+
+    // Modal close on Escape / backdrop click
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeUserModal(); });
+    document.getElementById('user-modal').addEventListener('click', e => {
+        if (e.target.id === 'user-modal') closeUserModal();
+    });
+</script>
+{% endblock %}

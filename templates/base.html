@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Grocery POS System{% endblock %}</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/static/images/logo.png">
+</head>
+<body>
+    <!-- Header -->
+    {% if show_header|default(true) %}
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>{{ request.state.settings.STORE_NAME }}</h1>
+            </div>
+            
+            <div class="user-info" id="user-info">
+                <span id="user-name">Loading...</span>
+                <span class="role-badge" id="user-role"></span>
+                <button onclick="logout()" class="btn-logout">Logout</button>
+            </div>
+        </div>
+    </header>
+    {% endif %}
+    
+    <!-- Navigation -->
+    {% if show_nav|default(true) %}
+    <nav class="app-nav" id="app-nav">
+        <!-- Navigation will be populated by JavaScript based on role -->
+    </nav>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main class="app-main">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/main.js"></script>
+    {% block extra_js %}{% endblock %}
+    
+    <script>
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeApp();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/reports.css">
+{% endblock %}
+
+{% block content %}
+<div class="reports-container">
+    <h1>Reports & Analytics</h1>
+    
+    <!-- Date Range Selector -->
+    <div class="date-range-selector">
+        <div class="form-group">
+            <label>Report Type:</label>
+            <select id="report-type" onchange="changeReportType()">
+                <option value="daily">Daily Summary</option>
+                <option value="range">Date Range</option>
+                <option value="top-products">Top Selling Products</option>
+                <option value="cashier">Cashier Performance</option>
+                <option value="inventory">Inventory Valuation</option>
+            </select>
+        </div>
+        
+        <div class="form-group" id="date-input">
+            <label>Date:</label>
+            <input type="date" id="report-date" value="">
+        </div>
+        
+        <div class="form-group" id="start-date-input" style="display: none;">
+            <label>Start Date:</label>
+            <input type="date" id="start-date">
+        </div>
+        
+        <div class="form-group" id="end-date-input" style="display: none;">
+            <label>End Date:</label>
+            <input type="date" id="end-date">
+        </div>
+        
+        <button onclick="generateReport()" class="btn-primary">Generate Report</button>
+        <button onclick="exportReport()" class="btn-secondary">Export to Excel</button>
+    </div>
+    
+    <!-- Report Display -->
+    <div id="report-content" class="report-content">
+        <div class="report-placeholder">
+            <p>Select report type and click "Generate Report"</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/reports.js"></script>
+<script>
+    // Set today's date as default
+    document.getElementById('report-date').valueAsDate = new Date();
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+/* Reports & Analytics */
+.reports-container { display: flex; flex-direction: column; gap: var(--sp-5); }
+
+.date-range-selector {
+  display: grid;
+  grid-template-columns: 220px 180px 180px 180px auto auto;
+  gap: var(--sp-3); align-items: end;
+  background: var(--bg-surface); border: 1px solid var(--border);
+  padding: var(--sp-4); border-radius: var(--r-lg);
+}
+@media (max-width: 900px) { .date-range-selector { grid-template-columns: 1fr 1fr; } }
+
+.kpi-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4);
+}
+@media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+.kpi-card {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: var(--sp-5);
+  box-shadow: var(--shadow-xs);
+}
+.kpi-card .label { color: var(--text-muted); font-size: var(--fs-13); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: .04em; }
+.kpi-card .value { font-size: var(--fs-36); font-weight: 800; margin-top: var(--sp-2); font-variant-numeric: tabular-nums; }
+.kpi-card .delta { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-13); margin-top: var(--sp-2); }
+.kpi-card .delta.up { color: var(--color-success); }
+.kpi-card .delta.down { color: var(--color-danger); }
+
+.report-content {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: var(--sp-5); min-height: 260px;
+}
+.report-placeholder { color: var(--text-muted); text-align: center; padding: var(--sp-10); }
+
+.chart-card {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: var(--sp-5);
+}
